@@ -17,6 +17,7 @@
   "build": {
     "appId": "com.desktoppet.app",
     "productName": "Desktop Pet",
+    "publish": null,
     "directories": {
       "output": "dist"
     },
