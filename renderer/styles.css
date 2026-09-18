@@ -1,0 +1,1810 @@
+:root {
+  --accent: #ff9a3c;
+  --ink: #3a2414;
+  --panel: rgba(255, 248, 240, 0.95);
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  cursor: grab;
+}
+
+body:active {
+  cursor: grabbing;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.stage {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  height: 200px;
+  display: grid;
+  place-items: end center;
+}
+
+.shadow {
+  position: absolute;
+  bottom: 12px;
+  width: 84px;
+  height: 16px;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.22), transparent 70%);
+  border-radius: 50%;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.pet {
+  position: relative;
+  z-index: 3;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+.pet-sprite {
+  display: block;
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  pointer-events: none;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  transform-origin: center bottom;
+  image-rendering: auto;
+}
+
+.pet.has-sprite-anim .pet-sprite {
+  image-rendering: auto;
+}
+
+/* Multi-frame sheets carry main pose; keep a soft companion bob */
+.pet.has-sprite-anim.state-idle {
+  animation: spriteSoftIdle 2.8s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-idle.face-left {
+  animation: spriteSoftIdleLeft 2.8s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-walk,
+.pet.has-sprite-anim.state-crawl {
+  animation: spriteSoftWalk 0.4s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-walk.face-left,
+.pet.has-sprite-anim.state-crawl.face-left {
+  animation: spriteSoftWalkLeft 0.4s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-run,
+.pet.has-sprite-anim.state-slide,
+.pet.has-sprite-anim.state-zoom {
+  animation: spriteSoftRun 0.28s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-run.face-left,
+.pet.has-sprite-anim.state-slide.face-left,
+.pet.has-sprite-anim.state-zoom.face-left {
+  animation: spriteSoftRunLeft 0.28s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-climb {
+  animation: spriteSoftClimb 0.42s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-climb.face-left {
+  animation: spriteSoftClimbLeft 0.42s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-glide,
+.pet.has-sprite-anim.state-bounce {
+  animation: spriteSoftGlide 0.7s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-glide.face-left,
+.pet.has-sprite-anim.state-bounce.face-left {
+  animation: spriteSoftGlideLeft 0.7s ease-in-out infinite;
+}
+.pet.has-sprite-anim.state-jump,
+.pet.has-sprite-anim.state-hopside,
+.pet.has-sprite-anim.state-land,
+.pet.has-sprite-anim.state-sit,
+.pet.has-sprite-anim.state-sleep,
+.pet.has-sprite-anim.state-lay,
+.pet.has-sprite-anim.state-happy,
+.pet.has-sprite-anim.state-wave,
+.pet.has-sprite-anim.state-dance,
+.pet.has-sprite-anim.state-celebrate,
+.pet.has-sprite-anim.state-beg {
+  animation: none;
+}
+
+.pet.has-sprite-anim.face-left {
+  transform: scaleX(-1);
+}
+
+.pet.has-sprite-anim.face-right {
+  transform: none;
+}
+
+.pet.face-left {
+  transform: scaleX(-1);
+}
+
+.fx-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+.fx-particle {
+  position: absolute;
+  font-size: 14px;
+  pointer-events: none;
+  animation: particleFly 0.9s ease-out forwards;
+}
+
+.fx {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.fx span {
+  position: absolute;
+  font-weight: 700;
+}
+
+.fx-zzz span:nth-child(1) {
+  top: 18px;
+  right: 28px;
+  color: #7aa0ff;
+  font-size: 14px;
+}
+
+.fx-zzz span:nth-child(2) {
+  top: 6px;
+  right: 14px;
+  color: #7aa0ff;
+  font-size: 16px;
+}
+
+.fx-hearts span {
+  color: #ff5d7a;
+  font-size: 13px;
+}
+
+.fx-hearts span:nth-child(1) {
+  top: 18px;
+  left: 18px;
+}
+
+.fx-hearts span:nth-child(2) {
+  top: 30px;
+  right: 20px;
+}
+
+.fx-hearts span:nth-child(3) {
+  top: 8px;
+  left: 48%;
+  font-size: 11px;
+}
+
+.fx-notes span {
+  color: #6c8cff;
+  font-size: 14px;
+}
+
+.fx-notes span:nth-child(1) {
+  top: 12px;
+  left: 22px;
+}
+
+.fx-notes span:nth-child(2) {
+  top: 24px;
+  right: 18px;
+}
+
+.fx-sweat span {
+  top: 20px;
+  right: 16px;
+  font-size: 14px;
+}
+
+.fx-stars span {
+  color: #ffc94d;
+  font-size: 14px;
+}
+
+.fx-stars span:nth-child(1) {
+  top: 10px;
+  left: 24px;
+}
+
+.fx-stars span:nth-child(2) {
+  top: 22px;
+  right: 22px;
+}
+
+.fx-question span {
+  top: 8px;
+  right: 20px;
+  color: #7a6a58;
+  font-size: 18px;
+}
+
+.fx-angry span {
+  top: 6px;
+  right: 18px;
+  color: #ff4d6d;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.fx-think span {
+  top: 4px;
+  right: 22px;
+  color: #7a6a58;
+  font-size: 20px;
+}
+
+.fx-sparkle span {
+  color: #ffd76a;
+  font-size: 13px;
+}
+
+.fx-sparkle span:nth-child(1) {
+  top: 12px;
+  left: 20px;
+}
+
+.fx-sparkle span:nth-child(2) {
+  top: 28px;
+  right: 16px;
+}
+
+/* States */
+.pet.state-idle {
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+.pet.state-idle.face-left {
+  animation: breatheLeft 2.4s ease-in-out infinite;
+}
+
+.pet.state-walk {
+  animation: walkBob 0.32s ease-in-out infinite;
+}
+
+.pet.state-walk.face-left {
+  animation: walkBobLeft 0.32s ease-in-out infinite;
+}
+
+.pet.state-run {
+  animation: runBob 0.22s ease-in-out infinite;
+}
+
+.pet.state-run.face-left {
+  animation: runBobLeft 0.22s ease-in-out infinite;
+}
+
+.pet.state-sit {
+  animation: sitSettle 0.35s ease-out forwards;
+}
+
+.pet.state-sit.face-left {
+  animation: sitSettleLeft 0.35s ease-out forwards;
+}
+
+.pet.state-sleep {
+  animation: sleepSway 3.2s ease-in-out infinite;
+}
+
+.pet.state-sleep.face-left {
+  animation: sleepSwayLeft 3.2s ease-in-out infinite;
+}
+
+.pet.state-sleep .fx-zzz {
+  opacity: 1;
+  animation: floatZ 1.6s ease-in-out infinite;
+}
+
+.pet.state-eat {
+  animation: nibble 0.35s ease-in-out infinite;
+}
+
+.pet.state-eat.face-left {
+  animation: nibbleLeft 0.35s ease-in-out infinite;
+}
+
+.pet.state-happy {
+  animation: hop 0.5s ease-in-out infinite;
+}
+
+.pet.state-happy.face-left {
+  animation: hopLeft 0.5s ease-in-out infinite;
+}
+
+.pet.state-happy .fx-hearts {
+  opacity: 1;
+  animation: floatHeart 0.85s ease-in-out infinite;
+}
+
+.pet.state-dance {
+  animation: dance 0.45s ease-in-out infinite;
+}
+
+.pet.state-dance.face-left {
+  animation: danceLeft 0.45s ease-in-out infinite;
+}
+
+.pet.state-dance .fx-notes {
+  opacity: 1;
+  animation: floatNotes 0.7s ease-in-out infinite;
+}
+
+.pet.state-stretch {
+  animation: stretch 1.2s ease-in-out;
+}
+
+.pet.state-stretch.face-left {
+  animation: stretchLeft 1.2s ease-in-out;
+}
+
+.pet.state-yawn {
+  animation: yawn 1.4s ease-in-out;
+}
+
+.pet.state-yawn.face-left {
+  animation: yawnLeft 1.4s ease-in-out;
+}
+
+.pet.state-spin {
+  animation: spinOnce 0.7s ease-in-out;
+}
+
+.pet.state-spin.face-left {
+  animation: spinOnceLeft 0.7s ease-in-out;
+}
+
+.pet.state-spin .fx-stars {
+  opacity: 1;
+  animation: floatHeart 0.7s ease-in-out infinite;
+}
+
+.pet.state-shy {
+  animation: shy 0.9s ease-in-out;
+}
+
+.pet.state-shy.face-left {
+  animation: shyLeft 0.9s ease-in-out;
+}
+
+.pet.state-shy .fx-sweat {
+  opacity: 1;
+  animation: floatZ 0.8s ease-in-out infinite;
+}
+
+.pet.state-surprise {
+  animation: surprise 0.7s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.pet.state-surprise.face-left {
+  animation: surpriseLeft 0.7s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.pet.state-surprise .fx-question {
+  opacity: 1;
+  animation: floatZ 0.7s ease-in-out;
+}
+
+.pet.state-shake {
+  animation: shake 0.45s ease-in-out;
+}
+
+.pet.state-shake.face-left {
+  animation: shakeLeft 0.45s ease-in-out;
+}
+
+.pet.state-squish {
+  animation: squish 0.28s ease-out;
+}
+
+.pet.state-squish.face-left {
+  animation: squishLeft 0.28s ease-out;
+}
+
+.pet.state-land {
+  animation: land 0.55s ease-out;
+}
+
+.pet.state-land.face-left {
+  animation: landLeft 0.55s ease-out;
+}
+
+.pet.state-wave {
+  animation: wave 0.9s ease-in-out;
+}
+
+.pet.state-wave.face-left {
+  animation: waveLeft 0.9s ease-in-out;
+}
+
+.pet.state-drag {
+  animation: dragFloat 0.9s ease-in-out infinite;
+}
+
+.pet.state-drag.face-left {
+  animation: dragFloatLeft 0.9s ease-in-out infinite;
+}
+
+.stage:has(.pet.state-drag) .shadow,
+.stage:has(.pet.state-fall) .shadow {
+  transform: scale(0.55);
+  opacity: 0.4;
+}
+
+.pet.state-fall {
+  animation: spinFall 0.55s linear infinite;
+}
+
+.pet.state-fall.face-left {
+  animation: spinFallLeft 0.55s linear infinite;
+}
+
+.pet.state-fall .fx-sweat {
+  opacity: 1;
+}
+
+.pet.state-jump {
+  animation: jumpHigh 0.7s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+.pet.state-jump.face-left {
+  animation: jumpHighLeft 0.7s cubic-bezier(0.2, 1.3, 0.4, 1);
+}
+
+.pet.state-roll {
+  animation: rollSide 0.85s ease-in-out;
+}
+.pet.state-roll.face-left {
+  animation: rollSideLeft 0.85s ease-in-out;
+}
+
+.pet.state-peek {
+  animation: peekOut 1.4s ease-in-out;
+}
+.pet.state-peek.face-left {
+  animation: peekOutLeft 1.4s ease-in-out;
+}
+
+.pet.state-think {
+  animation: thinkTilt 1.8s ease-in-out;
+}
+.pet.state-think.face-left {
+  animation: thinkTiltLeft 1.8s ease-in-out;
+}
+.pet.state-think .fx-think {
+  opacity: 1;
+  animation: floatZ 1s ease-in-out infinite;
+}
+
+.pet.state-celebrate {
+  animation: celebrate 1.1s ease-in-out;
+}
+.pet.state-celebrate.face-left {
+  animation: celebrateLeft 1.1s ease-in-out;
+}
+.pet.state-celebrate .fx-sparkle {
+  opacity: 1;
+  animation: floatHeart 0.7s ease-in-out infinite;
+}
+
+.pet.state-sneeze {
+  animation: sneeze 0.85s ease-out;
+}
+.pet.state-sneeze.face-left {
+  animation: sneezeLeft 0.85s ease-out;
+}
+.pet.state-sneeze .fx-sweat {
+  opacity: 1;
+}
+
+.pet.state-clean {
+  animation: cleanSelf 1.5s ease-in-out;
+}
+.pet.state-clean.face-left {
+  animation: cleanSelfLeft 1.5s ease-in-out;
+}
+
+.pet.state-bounce {
+  animation: softBounce 0.9s ease-in-out infinite;
+}
+.pet.state-bounce.face-left {
+  animation: softBounceLeft 0.9s ease-in-out infinite;
+}
+
+.pet.state-tip {
+  animation: tipOver 1.2s ease-in-out;
+}
+.pet.state-tip.face-left {
+  animation: tipOverLeft 1.2s ease-in-out;
+}
+
+.pet.state-crawl {
+  animation: crawlBob 0.4s ease-in-out infinite;
+}
+.pet.state-crawl.face-left {
+  animation: crawlBobLeft 0.4s ease-in-out infinite;
+}
+
+.pet.state-climb {
+  animation: climbBob 0.36s ease-in-out infinite;
+}
+.pet.state-climb.face-left {
+  animation: climbBobLeft 0.36s ease-in-out infinite;
+}
+
+.pet.state-glide {
+  animation: glideSoft 0.55s ease-in-out infinite;
+}
+.pet.state-glide.face-left {
+  animation: glideSoftLeft 0.55s ease-in-out infinite;
+}
+
+.pet.state-flip {
+  animation: backFlip 0.75s ease-in-out;
+}
+.pet.state-flip.face-left {
+  animation: backFlipLeft 0.75s ease-in-out;
+}
+.pet.state-flip .fx-stars {
+  opacity: 1;
+}
+
+.pet.state-nod {
+  animation: nodHead 1s ease-in-out;
+}
+.pet.state-nod.face-left {
+  animation: nodHeadLeft 1s ease-in-out;
+}
+
+.pet.state-angry {
+  animation: angryStomp 0.7s ease-in-out;
+}
+.pet.state-angry.face-left {
+  animation: angryStompLeft 0.7s ease-in-out;
+}
+.pet.state-angry .fx-angry {
+  opacity: 1;
+  animation: floatZ 0.5s ease-in-out infinite;
+}
+
+.pet.state-beg {
+  animation: begPose 1.3s ease-in-out;
+}
+.pet.state-beg.face-left {
+  animation: begPoseLeft 1.3s ease-in-out;
+}
+.pet.state-beg .fx-hearts {
+  opacity: 0.85;
+}
+
+.pet.state-slide {
+  animation: slidePose 0.35s ease-out infinite;
+}
+.pet.state-slide.face-left {
+  animation: slidePoseLeft 0.35s ease-out infinite;
+}
+
+.pet.state-zoom {
+  animation: zoomies 0.18s ease-in-out infinite;
+}
+.pet.state-zoom.face-left {
+  animation: zoomiesLeft 0.18s ease-in-out infinite;
+}
+
+.pet.state-hopside {
+  animation: hopSide 0.55s ease-in-out;
+}
+.pet.state-hopside.face-left {
+  animation: hopSideLeft 0.55s ease-in-out;
+}
+
+.pet.state-lay {
+  animation: layDown 0.5s ease-out forwards;
+}
+.pet.state-lay.face-left {
+  animation: layDownLeft 0.5s ease-out forwards;
+}
+
+.pet.state-wiggle {
+  animation: wiggleTail 0.8s ease-in-out;
+}
+.pet.state-wiggle.face-left {
+  animation: wiggleTailLeft 0.8s ease-in-out;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-4px) scale(1.02, 0.98); }
+}
+@keyframes breatheLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0) scale(1, 1); }
+  50% { transform: scaleX(-1) translateY(-4px) scale(1.02, 0.98); }
+}
+@keyframes spriteSoftIdle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes spriteSoftIdleLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0); }
+  50% { transform: scaleX(-1) translateY(-2px); }
+}
+@keyframes spriteSoftWalk {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-3px) rotate(1deg); }
+}
+@keyframes spriteSoftWalkLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(1deg); }
+  50% { transform: scaleX(-1) translateY(-3px) rotate(-1deg); }
+}
+@keyframes spriteSoftRun {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50% { transform: translateY(-4px) rotate(1.5deg); }
+}
+@keyframes spriteSoftRunLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(1.5deg); }
+  50% { transform: scaleX(-1) translateY(-4px) rotate(-1.5deg); }
+}
+@keyframes spriteSoftClimb {
+  0%, 100% { transform: translateY(0) scale(0.99, 1.02); }
+  50% { transform: translateY(-4px) scale(1.01, 0.98); }
+}
+@keyframes spriteSoftClimbLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0) scale(0.99, 1.02); }
+  50% { transform: scaleX(-1) translateY(-4px) scale(1.01, 0.98); }
+}
+@keyframes spriteSoftGlide {
+  0%, 100% { transform: translateY(0) rotate(1deg); }
+  50% { transform: translateY(3px) rotate(-1deg); }
+}
+@keyframes spriteSoftGlideLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(-1deg); }
+  50% { transform: scaleX(-1) translateY(3px) rotate(1deg); }
+}
+@keyframes walkBob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+@keyframes walkBobLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(-2deg); }
+  50% { transform: scaleX(-1) translateY(-8px) rotate(2deg); }
+}
+@keyframes runBob {
+  0%, 100% { transform: translateY(0) rotate(-4deg) scale(1.02, 0.96); }
+  50% { transform: translateY(-12px) rotate(4deg) scale(0.98, 1.04); }
+}
+@keyframes runBobLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(-4deg) scale(1.02, 0.96); }
+  50% { transform: scaleX(-1) translateY(-12px) rotate(4deg) scale(0.98, 1.04); }
+}
+@keyframes sitSettle {
+  from { transform: translateY(0) scale(1, 1); }
+  to { transform: translateY(10px) scale(1.04, 0.88); }
+}
+@keyframes sitSettleLeft {
+  from { transform: scaleX(-1) translateY(0); }
+  to { transform: scaleX(-1) translateY(10px) scale(1.04, 0.88); }
+}
+@keyframes sleepSway {
+  0%, 100% { transform: translateY(14px) rotate(-10deg) scale(1.02, 0.9); }
+  50% { transform: translateY(12px) rotate(-6deg) scale(1.02, 0.9); }
+}
+@keyframes sleepSwayLeft {
+  0%, 100% { transform: scaleX(-1) translateY(14px) rotate(10deg) scale(1.02, 0.9); }
+  50% { transform: scaleX(-1) translateY(12px) rotate(6deg) scale(1.02, 0.9); }
+}
+@keyframes nibble {
+  0%, 100% { transform: translateY(2px) rotate(0) scale(1, 1); }
+  50% { transform: translateY(6px) rotate(4deg) scale(1.03, 0.95); }
+}
+@keyframes nibbleLeft {
+  0%, 100% { transform: scaleX(-1) translateY(2px); }
+  50% { transform: scaleX(-1) translateY(6px) rotate(-4deg) scale(1.03, 0.95); }
+}
+@keyframes hop {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  35% { transform: translateY(-22px) scale(0.96, 1.06); }
+  55% { transform: translateY(-8px) scale(1.04, 0.94); }
+}
+@keyframes hopLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0); }
+  35% { transform: scaleX(-1) translateY(-22px) scale(0.96, 1.06); }
+  55% { transform: scaleX(-1) translateY(-8px) scale(1.04, 0.94); }
+}
+@keyframes dance {
+  0%, 100% { transform: translateY(0) rotate(-8deg) scale(1.02, 0.96); }
+  25% { transform: translateY(-14px) rotate(8deg); }
+  50% { transform: translateY(0) rotate(-6deg) scale(0.98, 1.04); }
+  75% { transform: translateY(-10px) rotate(10deg); }
+}
+@keyframes danceLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(-8deg); }
+  25% { transform: scaleX(-1) translateY(-14px) rotate(8deg); }
+  50% { transform: scaleX(-1) translateY(0) rotate(-6deg); }
+  75% { transform: scaleX(-1) translateY(-10px) rotate(10deg); }
+}
+@keyframes stretch {
+  0% { transform: translateY(0) scale(1, 1); }
+  40% { transform: translateY(-8px) scale(0.92, 1.12); }
+  70% { transform: translateY(4px) scale(1.08, 0.9); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+@keyframes stretchLeft {
+  0% { transform: scaleX(-1) translateY(0); }
+  40% { transform: scaleX(-1) translateY(-8px) scale(0.92, 1.12); }
+  70% { transform: scaleX(-1) translateY(4px) scale(1.08, 0.9); }
+  100% { transform: scaleX(-1) translateY(0); }
+}
+@keyframes yawn {
+  0%, 100% { transform: scale(1, 1); }
+  40% { transform: scale(1.08, 0.9) translateY(4px); }
+  55% { transform: scale(0.95, 1.08) translateY(-2px); }
+}
+@keyframes yawnLeft {
+  0%, 100% { transform: scaleX(-1); }
+  40% { transform: scaleX(-1) scale(1.08, 0.9) translateY(4px); }
+  55% { transform: scaleX(-1) scale(0.95, 1.08) translateY(-2px); }
+}
+@keyframes spinOnce {
+  0% { transform: rotate(0) scale(1); }
+  50% { transform: rotate(180deg) scale(1.08); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@keyframes spinOnceLeft {
+  0% { transform: scaleX(-1) rotate(0); }
+  50% { transform: scaleX(-1) rotate(-180deg) scale(1.08); }
+  100% { transform: scaleX(-1) rotate(-360deg); }
+}
+@keyframes shy {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  30% { transform: translateX(-8px) rotate(-6deg) scale(0.96); }
+  60% { transform: translateX(6px) rotate(4deg); }
+}
+@keyframes shyLeft {
+  0%, 100% { transform: scaleX(-1) translateX(0); }
+  30% { transform: scaleX(-1) translateX(-8px) rotate(6deg); }
+  60% { transform: scaleX(-1) translateX(6px) rotate(-4deg); }
+}
+@keyframes surprise {
+  0% { transform: scale(1) translateY(0); }
+  30% { transform: scale(1.15, 0.85) translateY(6px); }
+  55% { transform: scale(0.92, 1.12) translateY(-18px); }
+  100% { transform: scale(1) translateY(0); }
+}
+@keyframes surpriseLeft {
+  0% { transform: scaleX(-1); }
+  30% { transform: scaleX(-1) scale(1.15, 0.85) translateY(6px); }
+  55% { transform: scaleX(-1) scale(0.92, 1.12) translateY(-18px); }
+  100% { transform: scaleX(-1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px) rotate(-4deg); }
+  40% { transform: translateX(7px) rotate(4deg); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+@keyframes shakeLeft {
+  0%, 100% { transform: scaleX(-1) translateX(0); }
+  20% { transform: scaleX(-1) translateX(-7px) rotate(4deg); }
+  40% { transform: scaleX(-1) translateX(7px) rotate(-4deg); }
+  60% { transform: scaleX(-1) translateX(-5px); }
+  80% { transform: scaleX(-1) translateX(5px); }
+}
+@keyframes squish {
+  0% { transform: scale(1, 1); }
+  40% { transform: scale(1.18, 0.78) translateY(8px); }
+  100% { transform: scale(1, 1); }
+}
+@keyframes squishLeft {
+  0% { transform: scaleX(-1); }
+  40% { transform: scaleX(-1) scale(1.18, 0.78) translateY(8px); }
+  100% { transform: scaleX(-1); }
+}
+@keyframes land {
+  0% { transform: translateY(-20px) scale(0.95, 1.08); }
+  40% { transform: translateY(8px) scale(1.12, 0.82); }
+  70% { transform: translateY(-4px) scale(0.98, 1.04); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+@keyframes landLeft {
+  0% { transform: scaleX(-1) translateY(-20px); }
+  40% { transform: scaleX(-1) translateY(8px) scale(1.12, 0.82); }
+  70% { transform: scaleX(-1) translateY(-4px); }
+  100% { transform: scaleX(-1); }
+}
+@keyframes wave {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-12deg) translateY(-4px); }
+  50% { transform: rotate(10deg) translateY(-2px); }
+  75% { transform: rotate(-8deg); }
+}
+@keyframes waveLeft {
+  0%, 100% { transform: scaleX(-1) rotate(0); }
+  25% { transform: scaleX(-1) rotate(12deg) translateY(-4px); }
+  50% { transform: scaleX(-1) rotate(-10deg); }
+  75% { transform: scaleX(-1) rotate(8deg); }
+}
+@keyframes dragFloat {
+  0%, 100% { transform: translateY(-12px) rotate(-4deg) scale(1.05); }
+  50% { transform: translateY(-18px) rotate(4deg) scale(1.08); }
+}
+@keyframes dragFloatLeft {
+  0%, 100% { transform: scaleX(-1) translateY(-12px) rotate(4deg) scale(1.05); }
+  50% { transform: scaleX(-1) translateY(-18px) rotate(-4deg) scale(1.08); }
+}
+@keyframes floatZ {
+  0%, 100% { transform: translate(0, 0); opacity: 0.35; }
+  50% { transform: translate(4px, -6px); opacity: 1; }
+}
+@keyframes floatHeart {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+@keyframes floatNotes {
+  0%, 100% { transform: translateY(0) rotate(-6deg); opacity: 0.35; }
+  50% { transform: translateY(-12px) rotate(8deg); opacity: 1; }
+}
+@keyframes spinFall {
+  from { transform: rotate(0deg) scale(1.05); }
+  to { transform: rotate(360deg) scale(1.05); }
+}
+@keyframes spinFallLeft {
+  from { transform: scaleX(-1) rotate(0deg); }
+  to { transform: scaleX(-1) rotate(-360deg); }
+}
+@keyframes jumpHigh {
+  0% { transform: translateY(0) scale(1.05, 0.92); }
+  35% { transform: translateY(-48px) scale(0.94, 1.08); }
+  55% { transform: translateY(-52px) rotate(6deg); }
+  100% { transform: translateY(0) scale(1.08, 0.9); }
+}
+@keyframes jumpHighLeft {
+  0% { transform: scaleX(-1) translateY(0) scale(1.05, 0.92); }
+  35% { transform: scaleX(-1) translateY(-48px) scale(0.94, 1.08); }
+  55% { transform: scaleX(-1) translateY(-52px) rotate(-6deg); }
+  100% { transform: scaleX(-1) translateY(0) scale(1.08, 0.9); }
+}
+@keyframes rollSide {
+  0% { transform: translateX(0) rotate(0); }
+  50% { transform: translateX(28px) rotate(180deg) scale(0.95); }
+  100% { transform: translateX(0) rotate(360deg); }
+}
+@keyframes rollSideLeft {
+  0% { transform: scaleX(-1) translateX(0) rotate(0); }
+  50% { transform: scaleX(-1) translateX(28px) rotate(-180deg); }
+  100% { transform: scaleX(-1) translateX(0) rotate(-360deg); }
+}
+@keyframes peekOut {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  30% { transform: translateX(18px) rotate(8deg) scale(0.96); }
+  60% { transform: translateX(22px) rotate(10deg); }
+  80% { transform: translateX(8px) rotate(3deg); }
+}
+@keyframes peekOutLeft {
+  0%, 100% { transform: scaleX(-1) translateX(0); }
+  30% { transform: scaleX(-1) translateX(18px) rotate(-8deg); }
+  60% { transform: scaleX(-1) translateX(22px) rotate(-10deg); }
+}
+@keyframes thinkTilt {
+  0%, 100% { transform: rotate(0); }
+  40% { transform: rotate(-12deg) translateY(-2px); }
+  70% { transform: rotate(-8deg); }
+}
+@keyframes thinkTiltLeft {
+  0%, 100% { transform: scaleX(-1) rotate(0); }
+  40% { transform: scaleX(-1) rotate(12deg) translateY(-2px); }
+  70% { transform: scaleX(-1) rotate(8deg); }
+}
+@keyframes celebrate {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  20% { transform: translateY(-20px) rotate(-10deg); }
+  40% { transform: translateY(-6px) rotate(10deg); }
+  60% { transform: translateY(-24px) rotate(-8deg) scale(1.05); }
+  80% { transform: translateY(-4px) rotate(6deg); }
+}
+@keyframes celebrateLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0); }
+  20% { transform: scaleX(-1) translateY(-20px) rotate(10deg); }
+  40% { transform: scaleX(-1) translateY(-6px) rotate(-10deg); }
+  60% { transform: scaleX(-1) translateY(-24px) rotate(8deg); }
+}
+@keyframes sneeze {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.1, 0.85) translateY(6px); }
+  55% { transform: scale(0.9, 1.12) translateY(-10px) rotate(-8deg); }
+  100% { transform: scale(1) translateX(-6px); }
+}
+@keyframes sneezeLeft {
+  0% { transform: scaleX(-1); }
+  35% { transform: scaleX(-1) scale(1.1, 0.85) translateY(6px); }
+  55% { transform: scaleX(-1) scale(0.9, 1.12) translateY(-10px) rotate(8deg); }
+  100% { transform: scaleX(-1) translateX(-6px); }
+}
+@keyframes cleanSelf {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  25% { transform: rotate(-14deg) translateY(4px) scale(1.02, 0.95); }
+  50% { transform: rotate(8deg) translateY(2px); }
+  75% { transform: rotate(-10deg) translateY(4px); }
+}
+@keyframes cleanSelfLeft {
+  0%, 100% { transform: scaleX(-1) rotate(0); }
+  25% { transform: scaleX(-1) rotate(14deg) translateY(4px); }
+  50% { transform: scaleX(-1) rotate(-8deg); }
+  75% { transform: scaleX(-1) rotate(10deg); }
+}
+@keyframes softBounce {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-14px) scale(0.97, 1.05); }
+}
+@keyframes softBounceLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0); }
+  50% { transform: scaleX(-1) translateY(-14px) scale(0.97, 1.05); }
+}
+@keyframes tipOver {
+  0% { transform: rotate(0) translateY(0); }
+  60% { transform: rotate(78deg) translate(18px, 20px); }
+  80% { transform: rotate(70deg) translate(16px, 18px); }
+  100% { transform: rotate(0) translateY(0); }
+}
+@keyframes tipOverLeft {
+  0% { transform: scaleX(-1) rotate(0); }
+  60% { transform: scaleX(-1) rotate(-78deg) translate(18px, 20px); }
+  100% { transform: scaleX(-1) rotate(0); }
+}
+@keyframes crawlBob {
+  0%, 100% { transform: translateY(14px) scale(1.06, 0.82) rotate(-2deg); }
+  50% { transform: translateY(10px) scale(1.04, 0.86) rotate(2deg); }
+}
+@keyframes crawlBobLeft {
+  0%, 100% { transform: scaleX(-1) translateY(14px) scale(1.06, 0.82); }
+  50% { transform: scaleX(-1) translateY(10px) scale(1.04, 0.86); }
+}
+@keyframes climbBob {
+  0%, 100% { transform: translateY(2px) rotate(-6deg) scale(0.96, 1.04); }
+  50% { transform: translateY(-10px) rotate(6deg) scale(1.04, 0.94); }
+}
+@keyframes climbBobLeft {
+  0%, 100% { transform: scaleX(-1) translateY(2px) rotate(6deg) scale(0.96, 1.04); }
+  50% { transform: scaleX(-1) translateY(-10px) rotate(-6deg) scale(1.04, 0.94); }
+}
+@keyframes glideSoft {
+  0%, 100% { transform: translateY(0) rotate(4deg) scale(1.02, 0.96); }
+  50% { transform: translateY(6px) rotate(-4deg) scale(0.98, 1.02); }
+}
+@keyframes glideSoftLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0) rotate(-4deg) scale(1.02, 0.96); }
+  50% { transform: scaleX(-1) translateY(6px) rotate(4deg) scale(0.98, 1.02); }
+}
+@keyframes backFlip {
+  0% { transform: translateY(0) rotate(0); }
+  40% { transform: translateY(-40px) rotate(180deg) scale(1.05); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+@keyframes backFlipLeft {
+  0% { transform: scaleX(-1) translateY(0) rotate(0); }
+  40% { transform: scaleX(-1) translateY(-40px) rotate(-180deg); }
+  100% { transform: scaleX(-1) translateY(0) rotate(-360deg); }
+}
+@keyframes nodHead {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  30% { transform: rotate(8deg) translateY(5px) scale(1.02, 0.94); }
+  60% { transform: rotate(-4deg) translateY(2px); }
+}
+@keyframes nodHeadLeft {
+  0%, 100% { transform: scaleX(-1) rotate(0); }
+  30% { transform: scaleX(-1) rotate(-8deg) translateY(5px); }
+  60% { transform: scaleX(-1) rotate(4deg); }
+}
+@keyframes angryStomp {
+  0%, 100% { transform: translateY(0); }
+  20% { transform: translateY(-10px) rotate(-6deg); }
+  40% { transform: translateY(4px) scale(1.1, 0.85); }
+  60% { transform: translateY(-8px) rotate(6deg); }
+  80% { transform: translateY(4px) scale(1.08, 0.88); }
+}
+@keyframes angryStompLeft {
+  0%, 100% { transform: scaleX(-1) translateY(0); }
+  20% { transform: scaleX(-1) translateY(-10px) rotate(6deg); }
+  40% { transform: scaleX(-1) translateY(4px) scale(1.1, 0.85); }
+  60% { transform: scaleX(-1) translateY(-8px) rotate(-6deg); }
+}
+@keyframes begPose {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-12px) scale(0.95, 1.08) rotate(-4deg); }
+  70% { transform: translateY(-8px) scale(0.97, 1.05) rotate(4deg); }
+}
+@keyframes begPoseLeft {
+  0%, 100% { transform: scaleX(-1); }
+  40% { transform: scaleX(-1) translateY(-12px) scale(0.95, 1.08) rotate(4deg); }
+  70% { transform: scaleX(-1) translateY(-8px) rotate(-4deg); }
+}
+@keyframes slidePose {
+  0%, 100% { transform: translateY(12px) rotate(-18deg) scale(1.05, 0.9); }
+  50% { transform: translateY(10px) rotate(-14deg) scale(1.05, 0.9); }
+}
+@keyframes slidePoseLeft {
+  0%, 100% { transform: scaleX(-1) translateY(12px) rotate(18deg) scale(1.05, 0.9); }
+  50% { transform: scaleX(-1) translateY(10px) rotate(14deg) scale(1.05, 0.9); }
+}
+@keyframes zoomies {
+  0%, 100% { transform: translate(0, 0) rotate(-6deg); }
+  25% { transform: translate(6px, -8px) rotate(8deg); }
+  50% { transform: translate(-4px, -2px) rotate(-10deg); }
+  75% { transform: translate(5px, -10px) rotate(6deg); }
+}
+@keyframes zoomiesLeft {
+  0%, 100% { transform: scaleX(-1) translate(0, 0); }
+  25% { transform: scaleX(-1) translate(6px, -8px) rotate(-8deg); }
+  50% { transform: scaleX(-1) translate(-4px, -2px) rotate(10deg); }
+}
+@keyframes hopSide {
+  0%, 100% { transform: translate(0, 0); }
+  40% { transform: translate(16px, -18px) rotate(8deg); }
+  70% { transform: translate(20px, 2px) scale(1.06, 0.9); }
+}
+@keyframes hopSideLeft {
+  0%, 100% { transform: scaleX(-1) translate(0, 0); }
+  40% { transform: scaleX(-1) translate(16px, -18px) rotate(-8deg); }
+  70% { transform: scaleX(-1) translate(20px, 2px) scale(1.06, 0.9); }
+}
+@keyframes layDown {
+  from { transform: rotate(0) translateY(0); }
+  to { transform: rotate(88deg) translate(22px, 28px) scale(1.02, 0.95); }
+}
+@keyframes layDownLeft {
+  from { transform: scaleX(-1) rotate(0); }
+  to { transform: scaleX(-1) rotate(-88deg) translate(22px, 28px); }
+}
+@keyframes wiggleTail {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-10deg) translateX(-4px); }
+  50% { transform: rotate(8deg) translateX(4px); }
+  75% { transform: rotate(-6deg); }
+}
+@keyframes wiggleTailLeft {
+  0%, 100% { transform: scaleX(-1) rotate(0); }
+  25% { transform: scaleX(-1) rotate(10deg); }
+  50% { transform: scaleX(-1) rotate(-8deg); }
+}
+@keyframes particleFly {
+  0% { opacity: 1; transform: translate(0, 0) scale(1); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.6); }
+}
+
+/* Bubble — sits just above the pet head inside .stage */
+.bubble {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 190px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  color: #3a2414;
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(58, 36, 20, 0.12);
+  z-index: 6;
+  animation: popIn 0.22s ease;
+  pointer-events: none;
+}
+
+.bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 2px;
+}
+
+.bubble.hidden {
+  display: none;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* Status panel */
+.panel {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  right: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(58, 36, 20, 0.12);
+  z-index: 4;
+  color: #3a2414;
+}
+
+.panel.hidden {
+  display: none;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.panel-title {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.panel-head .look-close,
+#panel-close {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(58, 36, 20, 0.12);
+  color: #3a2414;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 5;
+  position: relative;
+}
+
+#panel-close:hover {
+  background: rgba(58, 36, 20, 0.2);
+}
+
+.stat {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+
+.bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(58, 36, 20, 0.08);
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  width: 50%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffb347, var(--accent));
+  transition: width 0.35s ease;
+}
+
+#bar-mood {
+  background: linear-gradient(90deg, #ff9ec4, #ff5d8f);
+}
+
+#bar-energy {
+  background: linear-gradient(90deg, #9ad0ff, #4f8cff);
+}
+
+.panel-hint {
+  margin-top: 4px;
+  font-size: 10px;
+  opacity: 0.55;
+}
+
+.panel-extra {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* Care panel */
+.care-panel {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  bottom: 170px;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(58, 36, 20, 0.14);
+  z-index: 6;
+  color: #3a2414;
+  overflow: auto;
+}
+
+.care-panel.hidden {
+  display: none;
+}
+
+.care-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.care-row input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+}
+
+.care-pomo-text {
+  font-size: 12px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  white-space: pre-line;
+}
+
+.care-memo {
+  width: 100%;
+  min-height: 58px;
+  resize: none;
+  border: 1px solid rgba(58, 36, 20, 0.1);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: #3a2414;
+  background: rgba(255, 255, 255, 0.8);
+  outline: none;
+}
+
+.care-memo:focus {
+  border-color: rgba(255, 154, 60, 0.55);
+}
+
+/* AI chat panel */
+.chat-panel {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  bottom: 150px;
+  padding: 10px;
+  border-radius: 14px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(58, 36, 20, 0.14);
+  z-index: 6;
+  color: #3a2414;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.chat-panel.hidden {
+  display: none;
+}
+
+.chat-panel > .look-panel-head,
+.chat-panel > .look-section-title,
+.chat-panel > .chat-provider-row,
+.chat-panel > .chat-key-row,
+.chat-panel > #chat-key-title,
+.chat-panel > #chat-key-row,
+.chat-panel > #chat-endpoint-wrap,
+.chat-panel > .look-tip,
+.chat-panel > .chat-toolbar,
+.chat-panel > .chat-compose {
+  flex-shrink: 0;
+}
+
+#chat-key-title.hidden,
+#chat-key-row.hidden,
+.chat-api-key-field.hidden {
+  display: none;
+}
+
+.chat-key-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.chat-provider-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-bottom: 4px;
+}
+
+.chat-provider-opt {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.chat-provider-opt input {
+  accent-color: var(--accent);
+}
+
+#chat-endpoint-wrap {
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+#chat-endpoint-wrap.hidden {
+  display: none;
+}
+
+.chat-api-key {
+  width: 100%;
+  border: 1px solid rgba(58, 36, 20, 0.1);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: #3a2414;
+  background: rgba(255, 255, 255, 0.8);
+  outline: none;
+}
+
+.chat-api-key:focus {
+  border-color: rgba(255, 154, 60, 0.55);
+}
+
+.chat-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 4px;
+}
+
+.chat-clear-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.chat-messages {
+  flex: 1 1 auto;
+  min-height: 100px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  margin-bottom: 6px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.chat-empty {
+  margin: auto;
+  padding: 12px;
+  text-align: center;
+  font-size: 12px;
+  opacity: 0.65;
+  line-height: 1.5;
+}
+
+.chat-bubble {
+  max-width: 92%;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.chat-bubble.user {
+  align-self: flex-end;
+  background: var(--accent);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble.assistant {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.9);
+  color: #3a2414;
+  border-bottom-left-radius: 4px;
+}
+
+.chat-bubble.error {
+  align-self: stretch;
+  background: rgba(255, 120, 120, 0.16);
+  color: #8a2f2f;
+  font-size: 11px;
+}
+
+.chat-bubble.pending {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.chat-bubble.streaming::after {
+  content: '▍
+  display: inline-block;
+  margin-left: 1px;
+  animation: chat-caret 0.9s steps(1) infinite;
+  opacity: 0.55;
+}
+
+@keyframes chat-caret {
+  0%,
+  49% {
+    content: '▍
+  }
+  50%,
+  100% {
+    content: '';
+  }
+}
+
+.chat-compose {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  align-items: end;
+}
+
+.chat-input {
+  width: 100%;
+  min-height: 56px;
+  max-height: 88px;
+  resize: none;
+  border: 1px solid rgba(58, 36, 20, 0.1);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: #3a2414;
+  background: rgba(255, 255, 255, 0.85);
+  outline: none;
+}
+
+.chat-input:focus {
+  border-color: rgba(255, 154, 60, 0.55);
+}
+
+.chat-send-btn {
+  min-width: 56px;
+  height: 56px;
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Look library panel */
+.look-panel {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  right: 10px;
+  bottom: 156px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 10px 10px 8px;
+  border-radius: 14px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(58, 36, 20, 0.14);
+  z-index: 6;
+  color: #3a2414;
+  overflow: hidden;
+}
+
+.look-panel.hidden {
+  display: none;
+}
+
+.look-panel-head {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.look-close {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(58, 36, 20, 0.08);
+  color: #3a2414;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.look-actions {
+  display: grid;
+  flex-shrink: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.look-actions-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.look-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.clean-confirm {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(58, 36, 20, 0.12);
+}
+
+.clean-confirm.hidden {
+  display: none;
+}
+
+.clean-block {
+  margin-bottom: 8px;
+}
+
+.clean-block-title {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.75;
+  margin-bottom: 4px;
+}
+
+.clean-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 120px;
+  overflow: auto;
+}
+
+.clean-item {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  padding: 6px 7px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.clean-item input {
+  margin-top: 2px;
+}
+
+.clean-item .clean-meta {
+  opacity: 0.7;
+  font-size: 10px;
+}
+
+.clean-item.risk-high {
+  background: rgba(255, 120, 120, 0.16);
+}
+
+.clean-item.risk-medium {
+  background: rgba(255, 196, 90, 0.18);
+}
+
+.look-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 7px 4px;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.25;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.75);
+  color: #3a2414;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.look-btn.primary {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+.look-btn:hover {
+  filter: brightness(1.03);
+}
+
+.look-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.look-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.7;
+  margin: 2px 0 6px;
+}
+
+.look-body > .look-section-title:first-child {
+  margin-top: 0;
+}
+
+.look-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.look-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+  padding: 5px 3px 6px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.75);
+  color: inherit;
+  font: inherit;
+  font-size: 10px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.look-card:hover {
+  border-color: rgba(255, 154, 60, 0.4);
+}
+
+.look-card.active {
+  border-color: var(--accent);
+  background: rgba(255, 154, 60, 0.14);
+  font-weight: 700;
+}
+
+.look-card img {
+  width: 100%;
+  max-width: 48px;
+  height: 48px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.look-card .look-name {
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.look-del {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(58, 36, 20, 0.55);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: none;
+}
+
+.look-cutout {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  height: 18px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(255, 154, 60, 0.92);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  cursor: pointer;
+  display: none;
+}
+
+.look-card:hover .look-del,
+.look-card:hover .look-cutout {
+  display: block;
+}
+
+.look-cutout:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.look-empty {
+  font-size: 11px;
+  opacity: 0.6;
+  padding: 4px 4px 10px;
+  line-height: 1.4;
+}
+
+.look-empty.hidden {
+  display: none;
+}
+
+.look-tip {
+  margin: 2px 0 4px;
+  font-size: 10px;
+  opacity: 0.55;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}

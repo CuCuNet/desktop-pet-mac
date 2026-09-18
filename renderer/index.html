@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; img-src 'self' data: blob: petskin:; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self' blob:; connect-src 'self' blob: data:"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>桌面宠物</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="panel" class="panel hidden">
+        <div class="panel-head">
+          <div class="panel-title" id="panel-title">小橘</div>
+          <button type="button" id="panel-close" class="look-close" title="关闭">×</button>
+        </div>
+        <div class="stat">
+          <span>心情</span>
+          <div class="bar"><i id="bar-mood"></i></div>
+        </div>
+        <div class="stat">
+          <span>饱食</span>
+          <div class="bar"><i id="bar-hunger"></i></div>
+        </div>
+        <div class="stat">
+          <span>精力</span>
+          <div class="bar"><i id="bar-energy"></i></div>
+        </div>
+        <div id="panel-extra" class="panel-extra"></div>
+        <div class="panel-hint">右键打开菜单 · 托盘可开关穿透</div>
+      </div>
+
+      <div id="care-panel" class="care-panel hidden">
+        <div class="look-panel-head">
+          <span>贴心助手</span>
+          <button type="button" id="care-close" class="look-close" title="关闭">×</button>
+        </div>
+
+        <label class="care-row">
+          <input type="checkbox" id="care-auto" checked />
+          <span>自由行动（自动走动）</span>
+        </label>
+        <label class="care-row">
+          <input type="checkbox" id="care-quiet" />
+          <span>安静陪伴（举止更安静，不追鼠标）</span>
+        </label>
+        <label class="care-row">
+          <input type="checkbox" id="care-clickthrough" />
+          <span>鼠标穿透（工作不挡鼠标）</span>
+        </label>
+        <label class="care-row">
+          <input type="checkbox" id="care-autostart" />
+          <span>开机自动启动</span>
+        </label>
+
+        <div class="look-section-title">定时提醒</div>
+        <label class="care-row">
+          <input type="checkbox" id="care-water" checked />
+          <span>喝水提醒 · 每 45 分钟</span>
+        </label>
+        <label class="care-row">
+          <input type="checkbox" id="care-eyes" checked />
+          <span>护眼提醒 · 每 50 分钟</span>
+        </label>
+        <label class="care-row">
+          <input type="checkbox" id="care-stretch" checked />
+          <span>久坐起来 · 每 60 分钟</span>
+        </label>
+
+        <div class="look-section-title">番茄钟</div>
+        <div class="care-pomodoro">
+          <div id="care-pomo-text" class="care-pomo-text">未开始 · 25 分专注 / 5 分休息</div>
+          <div class="look-actions">
+            <button type="button" id="care-pomo-toggle" class="look-btn primary">开始番茄钟</button>
+            <button type="button" id="care-corner" class="look-btn">回右下角</button>
+          </div>
+        </div>
+
+        <div class="look-section-title">电脑管家</div>
+        <div id="care-sys-text" class="care-pomo-text">正在读取内存与垃圾概况…</div>
+        <div class="look-actions look-actions-3">
+          <button type="button" id="care-clean" class="look-btn primary">快速清理</button>
+          <button type="button" id="care-clean-c" class="look-btn">清理C盘</button>
+          <button type="button" id="care-memory" class="look-btn">优化内存</button>
+        </div>
+        <div id="care-sys-result" class="look-tip">快速清理只处理安全项；C 盘不确定项会先让你确认</div>
+
+        <div id="clean-confirm" class="clean-confirm hidden">
+          <div class="look-section-title">C 盘清理确认</div>
+          <div class="clean-block">
+            <div class="clean-block-title">将直接清理（安全）</div>
+            <div id="clean-safe-list" class="clean-list"></div>
+          </div>
+          <div class="clean-block">
+            <div class="clean-block-title">不确定项（请勾选后清理）</div>
+            <div id="clean-uncertain-list" class="clean-list"></div>
+            <div id="clean-uncertain-empty" class="look-tip hidden">没有发现需要确认的大项</div>
+          </div>
+          <div class="look-actions">
+            <button type="button" id="clean-confirm-go" class="look-btn primary">确认清理选中项</button>
+            <button type="button" id="clean-confirm-cancel" class="look-btn">取消</button>
+          </div>
+        </div>
+
+        <div class="look-section-title">小便签</div>
+        <textarea id="care-memo" class="care-memo" maxlength="80" placeholder="写一句今天要记得的事…"></textarea>
+        <div class="look-tip">宠物会偶尔提醒便签内容；穿透开启后请用托盘菜单关闭</div>
+      </div>
+
+      <div id="chat-panel" class="chat-panel hidden">
+        <div class="look-panel-head">
+          <span>AI 咨询</span>
+          <button type="button" id="chat-close" class="look-close" title="关闭">×</button>
+        </div>
+
+        <div class="look-section-title">服务商</div>
+        <div class="chat-provider-row">
+          <label class="chat-provider-opt">
+            <input type="radio" name="chat-provider" id="chat-provider-zhipu" value="zhipu" checked />
+            <span>智谱（免费）</span>
+          </label>
+          <label class="chat-provider-opt">
+            <input type="radio" name="chat-provider" id="chat-provider-doubao" value="doubao" />
+            <span>豆包</span>
+          </label>
+          <label class="chat-provider-opt">
+            <input type="radio" name="chat-provider" id="chat-provider-deepseek" value="deepseek" />
+            <span>DeepSeek</span>
+          </label>
+        </div>
+
+        <div class="look-section-title hidden" id="chat-key-title">API Key（本地保存）</div>
+        <div class="chat-key-row hidden" id="chat-key-row">
+          <input
+            type="password"
+            id="chat-api-key-doubao"
+            class="chat-api-key chat-api-key-field hidden"
+            placeholder="在火山方舟控制台创建 API Key"
+            autocomplete="new-password"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            spellcheck="false"
+          />
+          <input
+            type="password"
+            id="chat-api-key-deepseek"
+            class="chat-api-key chat-api-key-field hidden"
+            placeholder="sk-… 在 platform.deepseek.com 获取"
+            autocomplete="new-password"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            spellcheck="false"
+          />
+          <button type="button" id="chat-save-key" class="look-btn">保存</button>
+        </div>
+
+        <div id="chat-endpoint-wrap" class="hidden">
+          <div class="look-section-title">推理接入点 ID</div>
+          <input
+            type="text"
+            id="chat-endpoint"
+            class="chat-api-key"
+            placeholder="ep-… 在方舟「在线推理」创建"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <div id="chat-key-tip" class="look-tip">
+          智谱使用内置免费 Key，无需填写；豆包 / DeepSeek 需自行填写 Key。
+        </div>
+
+        <div class="chat-toolbar">
+          <span class="look-section-title" style="margin: 0">对话</span>
+          <button type="button" id="chat-clear" class="look-btn chat-clear-btn">清空</button>
+        </div>
+        <div id="chat-messages" class="chat-messages" aria-live="polite">
+          <div class="chat-empty">有什么想问小橘的？工作、生活、学习都可以聊～</div>
+        </div>
+
+        <div class="chat-compose">
+          <textarea
+            id="chat-input"
+            class="chat-input"
+            maxlength="2000"
+            rows="3"
+            placeholder="输入问题，Enter 发送，Shift+Enter 换行…"
+          ></textarea>
+          <button type="button" id="chat-send" class="look-btn primary chat-send-btn">发送</button>
+        </div>
+      </div>
+
+      <div id="look-panel" class="look-panel hidden">
+        <div class="look-panel-head">
+          <span>形象库</span>
+          <button type="button" id="look-close" class="look-close" title="关闭">×</button>
+        </div>
+        <div class="look-actions look-actions-3">
+          <button type="button" id="look-import" class="look-btn primary">导入图片</button>
+          <button type="button" id="look-import-cutout" class="look-btn primary">抠图导入</button>
+          <button type="button" id="look-folder" class="look-btn">打开文件夹</button>
+        </div>
+        <div class="look-body">
+          <div class="look-section-title">预设</div>
+          <div id="look-builtin" class="look-grid"></div>
+          <div class="look-section-title">我的形象</div>
+          <div id="look-custom" class="look-grid"></div>
+          <div id="look-empty" class="look-empty hidden">还没有自定义形象，点「导入图片」添加 PNG / GIF / WebP</div>
+          <div class="look-tip">点缩略图换装；「抠图导入」或卡片上的「抠」可去掉背景（首次需联网下载约 4.5MB 模型）</div>
+        </div>
+      </div>
+
+      <div id="stage" class="stage">
+        <div id="bubble" class="bubble hidden" aria-live="polite"></div>
+        <div id="shadow" class="shadow"></div>
+        <div id="fx-layer" class="fx-layer" aria-hidden="true"></div>
+        <div id="pet" class="pet state-idle face-right" title="拖我走走，点我摸摸，连点更有趣">
+          <img id="pet-sprite" class="pet-sprite" alt="" draggable="false" />
+          <div class="fx fx-zzz" aria-hidden="true">
+            <span>z</span><span>z</span>
+          </div>
+          <div class="fx fx-hearts" aria-hidden="true">
+            <span>♥</span><span>♥</span><span>♥</span>
+          </div>
+          <div class="fx fx-notes" aria-hidden="true">
+            <span>♪</span><span>♫</span>
+          </div>
+          <div class="fx fx-sweat" aria-hidden="true">
+            <span>💧</span>
+          </div>
+          <div class="fx fx-stars" aria-hidden="true">
+            <span>✦</span><span>✧</span>
+          </div>
+          <div class="fx fx-question" aria-hidden="true">
+            <span>？</span>
+          </div>
+          <div class="fx fx-angry" aria-hidden="true">
+            <span>！</span>
+          </div>
+          <div class="fx fx-think" aria-hidden="true">
+            <span>…</span>
+          </div>
+          <div class="fx fx-sparkle" aria-hidden="true">
+            <span>✧</span><span>✦</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="vendor/ort/ort.wasm.min.js"></script>
+    <script src="cutout.js"></script>
+    <script src="pet.js"></script>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "name": "desktop-pet",
+  "version": "1.0.0",
+  "description": "A cute always-on-top desktop pet (macOS port)",
+  "main": "electron/main.js",
+  "author": "Desktop Pet",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.desktoppet.app",
+    "productName": "Desktop Pet",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "renderer/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] }
+      ],
+      "category": "public.app-category.entertainment",
+      "icon": "assets/icon.png",
+      "darkModeSupport": true
+    },
+    "dmg": {
+      "title": "Desktop Pet ${version}"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    }
+  }
+}
