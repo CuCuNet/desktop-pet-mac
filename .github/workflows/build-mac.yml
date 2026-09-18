@@ -24,6 +24,11 @@ jobs:
           unzip -q assets-2.zip
           ls assets/looks/anims | head
 
+      - name: Upscale icon to 512x512
+        run: |
+          sips -z 512 512 assets/icon.png --out assets/icon-512.png
+          mv assets/icon-512.png assets/icon.png
+
       - name: Install dependencies
         run: npm install
 
