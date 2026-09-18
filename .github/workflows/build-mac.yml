@@ -1,0 +1,38 @@
+name: Build macOS DMG
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Unpack assets
+        run: |
+          unzip -q assets-1.zip
+          unzip -q assets-2.zip
+          ls assets/looks/anims | head
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build DMG (arm64 + x64)
+        run: npm run dist:mac
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-pet-mac
+          path: dist/*.dmg
+          if-no-files-found: error
